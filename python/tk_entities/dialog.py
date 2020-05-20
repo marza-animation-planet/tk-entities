@@ -59,6 +59,11 @@ class AppDialog(QtWidgets.QDialog):
         ent_search.textEdited.connect(self._on_ent_search_edited)
         fld_search.textEdited.connect(self._on_fld_search_edited)
 
+        self.ui.ent_code.stateChanged.connect(self._on_ent_code_changed)
+        self.ui.ent_regexp.stateChanged.connect(self._on_ent_regexp_changed)
+        self.ui.fld_code.stateChanged.connect(self._on_fld_code_changed)
+        self.ui.fld_regexp.stateChanged.connect(self._on_fld_regexp_changed)
+
         ent_list_widget.itemSelectionChanged.connect(self.disp_fields)
 
         print("Launching Entities Application...")
@@ -167,6 +172,22 @@ class AppDialog(QtWidgets.QDialog):
         self.fld_filter = text
         self.disp_fields()
 
+    def _on_ent_code_changed(self, state):
+        self._entity_by_code = (state == QtCore.Qt.Unchecked)
+        self.disp_entities()
+
+    def _on_ent_regexp_changed(self, state):
+        self._entity_expr = (state == QtCore.Qt.Checked)
+        self.disp_entities()
+
+    def _on_fld_code_changed(self, state):
+        self._field_by_code = (state == QtCore.Qt.Unchecked)
+        self.disp_fields()
+
+    def _on_fld_regexp_changed(self, state):
+        self._field_expr = (state == QtCore.Qt.Checked)
+        self.disp_fields()
+
     def disp_entities(self):
         """
         Display entities
@@ -205,6 +226,8 @@ class AppDialog(QtWidgets.QDialog):
             item.setData(QtCore.Qt.UserRole, item_role)
             ent_list_widget.addItem(item)
 
+        self.disp_fields()
+
     def disp_fields(self):
         """
         Display entities
@@ -221,6 +244,11 @@ class AppDialog(QtWidgets.QDialog):
             return
 
         entity_name = entity_item.text()
+        if not self._entity_by_code:
+            entity_name = self._name_to_entity.get(entity_name, None)
+            if not entity_name:
+                return
+
         entity_fields, name_to_code = self._get_entity_fields(entity_name)
         field_names = (entity_fields if self._field_by_code else name_to_code).keys()
 

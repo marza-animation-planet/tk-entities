@@ -17,10 +17,19 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(702, 625)
+
+        # Top layout
         self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
         self.horizontalLayout.setObjectName("horizontalLayout")
+
+        # Entities column layout
         self.ent_vlay = QtWidgets.QVBoxLayout()
         self.ent_vlay.setObjectName("ent_vlay")
+
+        # Label + display name toggle
+        lbllay = QtWidgets.QHBoxLayout()
+        lbllay.setContentsMargins(0, 0, 0, 0)
+        lbllay.setSpacing(5)
         self.ent_label = QtWidgets.QLabel(Dialog)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -29,18 +38,41 @@ class Ui_Dialog(object):
         self.ent_label.setSizePolicy(sizePolicy)
         self.ent_label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.ent_label.setObjectName("ent_label")
-        self.ent_vlay.addWidget(self.ent_label)
+        self.ent_code = QtWidgets.QCheckBox("Show Displayed Names", parent=Dialog)
+        lbllay.addWidget(self.ent_label, 1)
+        lbllay.addWidget(self.ent_code, 0)
+        #self.ent_vlay.addWidget(self.ent_label)
+        self.ent_vlay.addLayout(lbllay)
+
+        # Field + regexp toogle
+        fldlay = QtWidgets.QHBoxLayout()
+        fldlay.setContentsMargins(0, 0, 0, 0)
+        fldlay.setSpacing(5)
         self.ent_search = SearchWidget(Dialog)
         self.ent_search.setBaseSize(QtCore.QSize(0, 0))
         self.ent_search.setObjectName("ent_search")
-        self.ent_vlay.addWidget(self.ent_search)
+        self.ent_regexp = QtWidgets.QCheckBox("As Regexp", parent=Dialog)
+        fldlay.addWidget(self.ent_search, 1)
+        fldlay.addWidget(self.ent_regexp, 0)
+        #self.ent_vlay.addWidget(self.ent_search)
+        self.ent_vlay.addLayout(fldlay)
+
+        # List
         self.ent_listWidget = QtWidgets.QListWidget(Dialog)
         self.ent_listWidget.setObjectName("ent_listWidget")
         self.ent_vlay.addWidget(self.ent_listWidget)
         self.ent_vlay.setStretch(2, 1)
+
         self.horizontalLayout.addLayout(self.ent_vlay)
+
+        # Fields column layout
         self.fld_vlay = QtWidgets.QVBoxLayout()
         self.fld_vlay.setObjectName("fld_vlay")
+
+        # Label + display name toggle
+        lbllay = QtWidgets.QHBoxLayout()
+        lbllay.setContentsMargins(0, 0, 0, 0)
+        lbllay.setSpacing(5)
         self.fld_label = QtWidgets.QLabel(Dialog)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -49,14 +81,30 @@ class Ui_Dialog(object):
         self.fld_label.setSizePolicy(sizePolicy)
         self.fld_label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.fld_label.setObjectName("fld_label")
-        self.fld_vlay.addWidget(self.fld_label)
+        self.fld_code = QtWidgets.QCheckBox("Show Displayed Name", parent=Dialog)
+        lbllay.addWidget(self.fld_label, 1)
+        lbllay.addWidget(self.fld_code, 0)
+        #self.fld_vlay.addWidget(self.fld_label)
+        self.fld_vlay.addLayout(lbllay)
+
+        # Field + regex toggle
+        fldlay = QtWidgets.QHBoxLayout()
+        fldlay.setContentsMargins(0, 0, 0, 0)
+        fldlay.setSpacing(5)
         self.fld_search = SearchWidget(Dialog)
         self.fld_search.setObjectName("fld_search")
-        self.fld_vlay.addWidget(self.fld_search)
+        self.fld_regexp = QtWidgets.QCheckBox("As Regexp", parent=Dialog)
+        fldlay.addWidget(self.fld_search, 1)
+        fldlay.addWidget(self.fld_regexp, 0)
+        #self.fld_vlay.addWidget(self.fld_search)
+        self.fld_vlay.addLayout(fldlay)
+
+        # List
         self.fld_listWidget = QtWidgets.QListWidget(Dialog)
         self.fld_listWidget.setObjectName("fld_listWidget")
         self.fld_vlay.addWidget(self.fld_listWidget)
         self.fld_vlay.setStretch(2, 1)
+
         self.horizontalLayout.addLayout(self.fld_vlay)
 
         self.retranslateUi(Dialog)
