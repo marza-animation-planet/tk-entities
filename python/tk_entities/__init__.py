@@ -19,8 +19,7 @@ def show_dialog(project, url, script, key):
     # defer imports so that the app works gracefully in batch modes
     from .dialog import AppDialog
 
-    app = QtWidgets.QApplication.instance()
-    if not app:
-        raise Exception("No QApplication currently running")
-    dlg = AppDialog(project, url, script, key, parent=app)
+    dlg = AppDialog(project, url, script, key)
     dlg.show()
+
+    return dlg

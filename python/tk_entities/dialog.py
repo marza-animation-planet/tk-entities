@@ -18,7 +18,7 @@ from Qt import QtCore, QtWidgets
 from .ui.dialog import Ui_Dialog
 
 
-class AppDialog(QtWidgets.QWidget):
+class AppDialog(QtWidgets.QDialog):
     """
     Main application dialog window
     """
