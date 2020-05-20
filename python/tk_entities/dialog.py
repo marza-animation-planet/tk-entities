@@ -118,7 +118,7 @@ class AppDialog(QtWidgets.QDialog):
             return ({}, {})
 
         for field_name, field_info in _fields.iteritems():
-            info = {}
+            info = {"code": field_name}
 
             name = field_info.get("name", {})
             if "value" in name:
