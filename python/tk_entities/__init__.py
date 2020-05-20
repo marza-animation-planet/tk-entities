@@ -8,10 +8,9 @@
 # agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
 # not expressly granted therein are reserved by Shotgun Software Inc.
 
-import sgtk
+from Qt import QtWidgets
 
-
-def show_dialog(app):
+def show_dialog(project, url, script, key):
     """
     Show the main dialog ui
 
@@ -20,7 +19,8 @@ def show_dialog(app):
     # defer imports so that the app works gracefully in batch modes
     from .dialog import AppDialog
 
-    display_name = sgtk.platform.current_bundle().get_setting("display_name")
-
-    # start ui
-    app.engine.show_dialog(display_name, app, AppDialog)
+    app = QtWidgets.QApplication.instance()
+    if not app:
+        raise Exception("No QApplication currently running")
+    dlg = AppDialog(project, url, script, key, parent=app)
+    dlg.show()
