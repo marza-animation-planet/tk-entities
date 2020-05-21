@@ -8,10 +8,19 @@
 
 from Qt import QtCore, QtWidgets
 from . import resources_rc
+import qjsonmodel
 
 class SearchWidget(QtWidgets.QLineEdit):
     def __init__(self, parent=None):
         super(SearchWidget, self).__init__(parent=parent)
+
+class ROJsonModel(qjsonmodel.QJsonModel):
+    def __init__(self, parent=None):
+        super(ROJsonModel, self).__init__(parent)
+
+    def flags(self, index):
+        flags = super(ROJsonModel, self).flags(index)
+        return flags & ~QtCore.Qt.ItemIsEditable
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -61,6 +70,23 @@ class Ui_Dialog(object):
         self.ent_listWidget = QtWidgets.QListWidget(Dialog)
         self.ent_listWidget.setObjectName("ent_listWidget")
         self.ent_vlay.addWidget(self.ent_listWidget)
+
+        # Info
+        self.ent_ilabel = QtWidgets.QLabel(Dialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.ent_ilabel.sizePolicy().hasHeightForWidth())
+        self.ent_ilabel.setSizePolicy(sizePolicy)
+        self.ent_ilabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.ent_ilabel.setObjectName("ent_ilabel")
+        self.ent_vlay.addWidget(self.ent_ilabel)
+
+        self.ent_info = QtWidgets.QTreeView(Dialog)
+        self.ent_model = ROJsonModel()
+        self.ent_info.setModel(self.ent_model)
+        self.ent_vlay.addWidget(self.ent_info)
+
         self.ent_vlay.setStretch(2, 1)
 
         self.horizontalLayout.addLayout(self.ent_vlay)
@@ -81,7 +107,7 @@ class Ui_Dialog(object):
         self.fld_label.setSizePolicy(sizePolicy)
         self.fld_label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.fld_label.setObjectName("fld_label")
-        self.fld_code = QtWidgets.QCheckBox("Show Displayed Name", parent=Dialog)
+        self.fld_code = QtWidgets.QCheckBox("Show Displayed Names", parent=Dialog)
         lbllay.addWidget(self.fld_label, 1)
         lbllay.addWidget(self.fld_code, 0)
         #self.fld_vlay.addWidget(self.fld_label)
@@ -103,6 +129,23 @@ class Ui_Dialog(object):
         self.fld_listWidget = QtWidgets.QListWidget(Dialog)
         self.fld_listWidget.setObjectName("fld_listWidget")
         self.fld_vlay.addWidget(self.fld_listWidget)
+
+        # Info
+        self.fld_ilabel = QtWidgets.QLabel(Dialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.fld_ilabel.sizePolicy().hasHeightForWidth())
+        self.fld_ilabel.setSizePolicy(sizePolicy)
+        self.fld_ilabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.fld_ilabel.setObjectName("fld_ilabel")
+        self.fld_vlay.addWidget(self.fld_ilabel)
+
+        self.fld_info = QtWidgets.QTreeView(Dialog)
+        self.fld_model = ROJsonModel()
+        self.fld_info.setModel(self.fld_model)
+        self.fld_vlay.addWidget(self.fld_info)
+
         self.fld_vlay.setStretch(2, 1)
 
         self.horizontalLayout.addLayout(self.fld_vlay)
@@ -113,4 +156,6 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtWidgets.QApplication.translate("Dialog", "Shotgun Entity Browser", None))
         self.ent_label.setText(QtWidgets.QApplication.translate("Dialog", "Entities", None))
+        self.ent_ilabel.setText(QtWidgets.QApplication.translate("Dialog", "Entitiy  Info", None))
         self.fld_label.setText(QtWidgets.QApplication.translate("Dialog", "Fields", None))
+        self.fld_ilabel.setText(QtWidgets.QApplication.translate("Dialog", "Field Info", None))

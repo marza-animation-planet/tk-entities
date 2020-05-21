@@ -59,14 +59,17 @@ class AppDialog(QtWidgets.QDialog):
         ent_search.textEdited.connect(self._on_ent_search_edited)
         fld_search.textEdited.connect(self._on_fld_search_edited)
 
+        mdl = self.ui.ent_listWidget.selectionModel()
+        mdl.currentChanged.connect(self._on_ent_selected)
         self.ui.ent_code.stateChanged.connect(self._on_ent_code_changed)
         self.ui.ent_regexp.stateChanged.connect(self._on_ent_regexp_changed)
+        mdl = self.ui.fld_listWidget.selectionModel()
+        mdl.currentChanged.connect(self._on_fld_selected)
         self.ui.fld_code.stateChanged.connect(self._on_fld_code_changed)
         self.ui.fld_regexp.stateChanged.connect(self._on_fld_regexp_changed)
 
         ent_list_widget.itemSelectionChanged.connect(self.disp_fields)
 
-        print("Launching Entities Application...")
         self._entity_by_code = True
         self._entity_expr = False
         self._field_by_code = True
@@ -77,16 +80,6 @@ class AppDialog(QtWidgets.QDialog):
         self.disp_entities()
         self.disp_fields()
 
-    def _value_str(self, val, ljoin="\n", kvjoin=" = "):
-        if isinstance(val, (list, set, tuple)):
-            return ljoin.join(map(self._value_str, val))
-        elif isinstance(val, dict):
-            return ljoin.join(map(lambda x: kvjoin.join(map(self._value_str, x)), val.items()))
-        elif isinstance(val, basestring):
-            return val
-        else:
-            return repr(val)
-
     def _init_entities(self):
         self._entities = {}
         self._name_to_entity = {}
@@ -94,21 +87,25 @@ class AppDialog(QtWidgets.QDialog):
         entities = self._sg.schema_entity_read(self._proj)
 
         for entity_name, entity_info in entities.iteritems():
+            info = {"code": entity_name}
+
             name = entity_info.get("name", {})
             if "value" in name:
-                self._name_to_entity[name["value"]] = entity_name
+                _name = name["value"]
+                info["name"] = _name
+                self._name_to_entity[_name] = entity_name
 
-            self._entities[entity_name] = None
+            self._entities[entity_name] = (info, None)
 
     def _get_entity_fields(self, entity_name):
         if not entity_name in self._entities:
             # Unknown entity name
             return ({}, {})
 
-        entity = self._entities[entity_name]
-        if entity is not None:
+        einfo, fields = self._entities[entity_name]
+        if fields is not None:
             # Entity fields already initialized
-            return entity
+            return fields
 
         fields = {}
         name_to_field = {}
@@ -154,7 +151,7 @@ class AppDialog(QtWidgets.QDialog):
 
             fields[field_name] = info
 
-        self._entities[entity_name] = (fields, name_to_field)
+        self._entities[entity_name] = (einfo, (fields, name_to_field))
 
         return (fields, name_to_field)
 
@@ -165,6 +162,18 @@ class AppDialog(QtWidgets.QDialog):
         self.ent_filter = text
         self.disp_entities()
 
+    def _on_ent_selected(self, newIndex, oldIndex):
+        item = self.ui.ent_listWidget.item(newIndex.row())
+        info = {}
+        if item is not None:
+            ent = item.text()
+            if not self._entity_by_code:
+                ent = self._name_to_entity.get(ent, None)
+            if ent:
+                info, _ = self._entities.get(ent, ({}, None))
+        self.ui.ent_model.load(info)
+        self.ui.fld_model.load({})
+
     def _on_fld_search_edited(self, text):
         """
         Update field text filter value 
@@ -172,23 +181,75 @@ class AppDialog(QtWidgets.QDialog):
         self.fld_filter = text
         self.disp_fields()
 
+    def _on_fld_selected(self, newIndex, oldIndex):
+        item = self.ui.fld_listWidget.item(newIndex.row())
+        info = {}
+        if item is not None:
+            fld = item.text()
+            item = self.ui.ent_listWidget.currentItem()
+            if item is not None:
+                ent = item.text()
+                if not self._entity_by_code:
+                    ent = self._name_to_entity.get(ent, None)
+                if ent:
+                    fields, name_to_code = self._get_entity_fields(ent)
+                    if not self._field_by_code:
+                        fld = name_to_code.get(fld, None)
+                    if fld:
+                        info = fields.get(fld, {})
+        self.ui.fld_model.load(info)
+
     def _on_ent_code_changed(self, state):
+        _entity_by_code = self._entity_by_code
         self._entity_by_code = (state == QtCore.Qt.Unchecked)
-        self.disp_entities()
+        item = self.ui.ent_listWidget.currentItem()
+        curent = (item.text() if item else None)
+        if curent:
+            if not _entity_by_code:
+                if self._entity_by_code:
+                    # name -> code
+                    curent = self._name_to_entity.get(curent, curent)
+            else:
+                if not self._entity_by_code:
+                    # code -> name
+                    einf, _ = self._entities.get(curent, ({}, None))
+                    curent = einf.get("name", curent)
+        self.disp_entities(curent=curent)
 
     def _on_ent_regexp_changed(self, state):
         self._entity_expr = (state == QtCore.Qt.Checked)
         self.disp_entities()
 
     def _on_fld_code_changed(self, state):
+        _field_by_code = self._field_by_code
         self._field_by_code = (state == QtCore.Qt.Unchecked)
-        self.disp_fields()
+        item = self.ui.fld_listWidget.currentItem()
+        curfld = (item.text() if item else None)
+        if curfld:
+            curent = None
+            item = self.ui.ent_listWidget.currentItem()
+            if item:
+                curent = item.text()
+                if not self._entity_by_code:
+                    curent = self._name_to_entity.get(curent, None)
+            if curent:
+                fields, name_to_code = self._get_entity_fields(curent)
+                if not _field_by_code:
+                    if self._field_by_code:
+                        # name -> code
+                        curfld = name_to_code.get(curfld, curfld)
+                else:
+                    if not self._field_by_code:
+                        # code -> name
+                        finf = fields.get(curfld, {})
+                        curfld = finf.get("name", curfld)
+        self.disp_fields(curfld=curfld)
 
     def _on_fld_regexp_changed(self, state):
         self._field_expr = (state == QtCore.Qt.Checked)
         self.disp_fields()
 
-    def disp_entities(self):
+    def disp_entities(self, curent=None):
         """
         Display entities
         """
@@ -196,7 +257,14 @@ class AppDialog(QtWidgets.QDialog):
         item_role = "entity"
 
         # clear list
+        if curent is None:
+            item = ent_list_widget.currentItem()
+            curent = (item.text() if item else None)
+
+        ent_list_widget.blockSignals(True)
         ent_list_widget.clear()
+        self.ui.ent_model.load({})
+        ent_list_widget.blockSignals(False)
 
         entity_names = (self._entities if self._entity_by_code else self._name_to_entity).keys()
 
@@ -226,9 +294,15 @@ class AppDialog(QtWidgets.QDialog):
             item.setData(QtCore.Qt.UserRole, item_role)
             ent_list_widget.addItem(item)
 
+        if curent is not None:
+            items = ent_list_widget.findItems(curent, QtCore.Qt.MatchExactly)
+            if items:
+                ent_list_widget.setCurrentItem(items[0])
+                ent_list_widget.scrollToItem(items[0])
+
         self.disp_fields()
 
-    def disp_fields(self):
+    def disp_fields(self, curfld=None):
         """
         Display entities
         """
@@ -237,7 +311,15 @@ class AppDialog(QtWidgets.QDialog):
         item_role = "field"
 
         # clear list
+        if curfld is None:
+            item = fld_list_widget.currentItem()
+            curfld = (item.text() if item else None)
+            print("Current field: %s" % curfld)
+
+        fld_list_widget.blockSignals(True)
         fld_list_widget.clear()
+        self.ui.fld_model.load({})
+        fld_list_widget.blockSignals(False)
 
         entity_item = ent_list_widget.currentItem()
         if not entity_item:
@@ -278,3 +360,12 @@ class AppDialog(QtWidgets.QDialog):
             item.setData(QtCore.Qt.UserRole, item_role)
             fld_list_widget.addItem(item)
 
+        if curfld is not None:
+            items = fld_list_widget.findItems(curfld, QtCore.Qt.MatchExactly)
+            if items:
+                fld_list_widget.setCurrentItem(items[0])
+                fld_list_widget.scrollToItem(items[0])
+            else:
+                print("Not found!")
+                import pprint
+                pprint.pprint(field_names)
