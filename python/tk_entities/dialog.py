@@ -304,7 +304,7 @@ class AppDialog(QtWidgets.QDialog):
 
     def disp_fields(self, curfld=None):
         """
-        Display entities
+        Display fields
         """
         fld_list_widget = self.ui.fld_listWidget
         ent_list_widget = self.ui.ent_listWidget
@@ -314,7 +314,6 @@ class AppDialog(QtWidgets.QDialog):
         if curfld is None:
             item = fld_list_widget.currentItem()
             curfld = (item.text() if item else None)
-            print("Current field: %s" % curfld)
 
         fld_list_widget.blockSignals(True)
         fld_list_widget.clear()
@@ -365,7 +364,3 @@ class AppDialog(QtWidgets.QDialog):
             if items:
                 fld_list_widget.setCurrentItem(items[0])
                 fld_list_widget.scrollToItem(items[0])
-            else:
-                print("Not found!")
-                import pprint
-                pprint.pprint(field_names)
