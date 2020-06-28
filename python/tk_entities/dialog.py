@@ -149,6 +149,18 @@ class AppDialog(QtWidgets.QDialog):
                 if vtypes is not None:
                     info["valid_types"] = vtypes
 
+                vvals = props.get("valid_values", {}).get("value", None)
+                if vvals is not None:
+                    info["valid_values"] = vvals
+
+                dvals = props.get("display_values", {}).get("value", None)
+                if dvals is not None:
+                    info["display_values"] = dvals
+
+                hvals = props.get("hidden_values", {}).get("value", None)
+                if hvals is not None:
+                    info["hidden_values"] = hvals
+
             fields[field_name] = info
 
         self._entities[entity_name] = (einfo, (fields, name_to_field))
