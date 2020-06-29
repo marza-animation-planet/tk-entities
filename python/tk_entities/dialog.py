@@ -150,15 +150,15 @@ class AppDialog(QtWidgets.QDialog):
                     info["valid_types"] = vtypes
 
                 vvals = props.get("valid_values", {}).get("value", None)
-                if vvals is not None:
+                if vvals:
                     info["valid_values"] = vvals
 
                 dvals = props.get("display_values", {}).get("value", None)
-                if dvals is not None:
+                if dvals:
                     info["display_values"] = dvals
 
                 hvals = props.get("hidden_values", {}).get("value", None)
-                if hvals is not None:
+                if hvals:
                     info["hidden_values"] = hvals
 
             fields[field_name] = info

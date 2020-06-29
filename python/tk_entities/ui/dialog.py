@@ -95,7 +95,11 @@ class Ui_Dialog(object):
         self.ent_ilabel.setObjectName("ent_ilabel")
 
         self.ent_info = QtWidgets.QTreeView(self.ent_iwidget)
-        #
+        hdr = self.ent_info.header()
+        if hasattr(hdr, "setSectionResizeMode"):
+            hdr.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        else:
+            hdr.setResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self.ent_model = ROJsonModel()
         self.ent_info.setModel(self.ent_model)
 
@@ -165,6 +169,11 @@ class Ui_Dialog(object):
         self.fld_ilabel.setObjectName("fld_ilabel")
 
         self.fld_info = QtWidgets.QTreeView(self.fld_iwidget)
+        hdr = self.fld_info.header()
+        if hasattr(hdr, "setSectionResizeMode"):
+            hdr.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        else:
+            hdr.setResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self.fld_model = ROJsonModel()
         self.fld_info.setModel(self.fld_model)
 
@@ -187,6 +196,6 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtWidgets.QApplication.translate("Dialog", "Shotgun Entity Browser", None))
         self.ent_label.setText(QtWidgets.QApplication.translate("Dialog", "Entities", None))
-        self.ent_ilabel.setText(QtWidgets.QApplication.translate("Dialog", "Entitiy  Info", None))
+        self.ent_ilabel.setText(QtWidgets.QApplication.translate("Dialog", "Entity Info", None))
         self.fld_label.setText(QtWidgets.QApplication.translate("Dialog", "Fields", None))
         self.fld_ilabel.setText(QtWidgets.QApplication.translate("Dialog", "Field Info", None))
