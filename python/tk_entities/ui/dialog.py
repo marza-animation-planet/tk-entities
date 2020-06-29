@@ -6,9 +6,10 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from Qt import QtCore, QtWidgets
+from Qt import QtCore, QtWidgets, QtGui
 from . import resources_rc
 import qjsonmodel
+import os
 
 class SearchWidget(QtWidgets.QLineEdit):
     def __init__(self, parent=None):
@@ -26,6 +27,11 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(702, 625)
+        iconpath = os.path.join(os.path.dirname(__file__), "sg_logo.png")
+        if os.path.isfile(iconpath):
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap(iconpath), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            Dialog.setWindowIcon(icon)
 
         # Top layout
         self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
@@ -89,6 +95,7 @@ class Ui_Dialog(object):
         self.ent_ilabel.setObjectName("ent_ilabel")
 
         self.ent_info = QtWidgets.QTreeView(self.ent_iwidget)
+        #
         self.ent_model = ROJsonModel()
         self.ent_info.setModel(self.ent_model)
 
